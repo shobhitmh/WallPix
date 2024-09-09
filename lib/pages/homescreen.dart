@@ -1,12 +1,16 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:wallpaperapp/pages/imagefullscreen.dart';
 import 'package:http/http.dart' as http;
+import 'package:wallpaperapp/components/Mydrawer.dart';
+import 'package:wallpaperapp/pages/imagefullscreen.dart';
 import 'package:wallpaperapp/pages/likeimages.dart';
+import 'package:wallpaperapp/pages/settings.dart';
+import 'package:wallpaperapp/services/getrandomtext.dart';
 
 class Homescreen extends StatefulWidget {
-  const Homescreen({super.key});
+  final Function(bool) onThemeChanged;
+
+  const Homescreen({super.key, required this.onThemeChanged});
 
   @override
   State<Homescreen> createState() => _HomescreenState();
@@ -16,7 +20,8 @@ class _HomescreenState extends State<Homescreen> {
   List images = [];
   int page = 1;
   bool isLoadingMore = false;
-  String query = "Tigers"; // Default query
+  String query =
+      getRandomText(); // Ensure getRandomText() returns a valid string
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -94,9 +99,37 @@ class _HomescreenState extends State<Homescreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context); // Access the current theme
+
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.grey[100], // Light background color
+        backgroundColor: theme.backgroundColor,
+        drawer: Mydrawer(), // Use theme's background color
+        appBar: AppBar(
+          title: const Text(
+            'W a l l P i x',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) =>
+                      SettingsPage(onThemeChanged: widget.onThemeChanged),
+                ));
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.favorite_border),
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => LikedImagesScreen(),
+                ));
+              },
+            ),
+          ],
+        ),
         body: Column(
           children: [
             Padding(
@@ -104,42 +137,28 @@ class _HomescreenState extends State<Homescreen> {
                   const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
               child: Row(
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => LikedImagesScreen()));
-                    },
-                    child: Icon(
-                      Icons.favorite_border,
-                      size: 30,
-                      color: Colors.red,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: theme.cardColor, // Use theme's card color
                         borderRadius: BorderRadius.circular(30),
-                        boxShadow: const [
+                        boxShadow: [
                           BoxShadow(
-                            color: Colors.black,
+                            color: theme.shadowColor,
                             blurRadius: 5,
                             offset: Offset(0, 2),
-                          ),
+                          )
                         ],
                       ),
                       child: TextField(
-                        style: TextStyle(
-                            color: const Color.fromARGB(255, 27, 26, 26)),
+                        style:
+                            TextStyle(color: theme.textTheme.bodyText1?.color),
                         controller: _searchController,
-                        decoration: const InputDecoration(
-                          hintStyle: TextStyle(color: Colors.grey),
+                        decoration: InputDecoration(
+                          hintStyle: TextStyle(color: theme.hintColor),
                           hintText: "Search for wallpapers",
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
+                          contentPadding: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 15),
                         ),
                         onSubmitted: (value) {
@@ -150,19 +169,19 @@ class _HomescreenState extends State<Homescreen> {
                   ),
                   const SizedBox(width: 10),
                   Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.blueAccent,
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black12,
+                          color: theme.shadowColor,
                           blurRadius: 4,
                           offset: Offset(0, 2),
-                        ),
+                        )
                       ],
                     ),
                     child: IconButton(
-                      icon: Icon(Icons.search, color: Colors.white),
+                      icon: Icon(Icons.search, color: theme.iconTheme.color),
                       onPressed: () {
                         searchImages(); // Trigger search on button press
                       },
@@ -173,13 +192,14 @@ class _HomescreenState extends State<Homescreen> {
             ),
             Expanded(
               child: images.isEmpty && !isLoadingMore
-                  ? const Center(
+                  ? Center(
                       child: Text("No images found",
-                          style:
-                              TextStyle(fontSize: 18, color: Colors.black54)))
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: theme.textTheme.bodyText1?.color)))
                   : GridView.builder(
                       controller: _scrollController,
-                      padding: EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(10),
                       itemCount: images.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(

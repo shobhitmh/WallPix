@@ -30,8 +30,18 @@ class _LikedImagesScreenState extends State<LikedImagesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    // Determine AppBar colors based on the current theme mode
+    final appBarBackgroundColor =
+        theme.brightness == Brightness.dark ? Colors.black : Colors.white;
+
+    final appBarTextColor =
+        theme.brightness == Brightness.dark ? Colors.white : Colors.black;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         leading: GestureDetector(
           onTap: () {
@@ -39,21 +49,26 @@ class _LikedImagesScreenState extends State<LikedImagesScreen> {
           },
           child: Icon(
             Icons.arrow_back,
-            color: Colors.black,
+            color: appBarTextColor,
           ),
         ),
         title: Text(
-          'L I K E D     I M A G E S',
+          'L I K E S',
           style: TextStyle(
-              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: appBarTextColor),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: appBarBackgroundColor,
         elevation: 0,
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.white, Colors.white],
+              colors: [
+                appBarBackgroundColor,
+                appBarBackgroundColor,
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -66,7 +81,7 @@ class _LikedImagesScreenState extends State<LikedImagesScreen> {
                 'No liked images yet!',
                 style: TextStyle(
                   fontSize: 18,
-                  color: Colors.grey[600],
+                  color: theme.textTheme.bodyText1?.color,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -101,7 +116,9 @@ class _LikedImagesScreenState extends State<LikedImagesScreen> {
                               loadingBuilder: (context, child, progress) {
                                 if (progress == null) return child;
                                 return Center(
-                                  child: CircularProgressIndicator(),
+                                  child: CircularProgressIndicator(
+                                    color: theme.progressIndicatorTheme.color,
+                                  ),
                                 );
                               },
                             ),
@@ -114,7 +131,7 @@ class _LikedImagesScreenState extends State<LikedImagesScreen> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.6),
+                              color: colorScheme.secondary.withOpacity(0.6),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
@@ -122,14 +139,14 @@ class _LikedImagesScreenState extends State<LikedImagesScreen> {
                               children: [
                                 Icon(
                                   Icons.share,
-                                  color: Colors.white,
+                                  color: appBarTextColor,
                                   size: 16,
                                 ),
                                 SizedBox(width: 4),
                                 Text(
                                   'Share',
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: appBarTextColor,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
